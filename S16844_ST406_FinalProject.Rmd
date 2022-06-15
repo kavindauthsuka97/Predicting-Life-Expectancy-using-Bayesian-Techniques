@@ -1,0 +1,590 @@
+---
+title: "S16844_ST406_FinalProject"
+author: "Kavinda Uthsuka"
+date: "5/6/2022"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(skimr)
+library(psych)
+library(Amelia)
+library(mice)
+library(janitor)
+library(Hmisc)
+library(reshape2)
+library(reshape)
+library(stats)
+```
+```{r}
+df <- read.csv('LifeExp.csv')
+head(df)
+```
+## Preliminary Analysis
+
+# Cleaning the column names.
+```{r}
+clean_names(df)
+```
+
+# Check the variable data type
+```{r}
+glimpse(df)
+```
+# Get the descriptive statistics of each variable.
+```{r}
+describe(df)
+```
+
+# Encoding the "Status" variable to binary values. 'Developing' = 0 & 'Developed' = 1.
+```{r}
+df$Status <- ifelse(df$Status == "Developing",1,0)
+```
+
+# Check the data type of the variables
+```{r}
+str(df)
+```
+
+
+
+# Checking the missing values and replace them with respective variable mean.
+```{r}
+skim(df)
+```
+```{r}
+missmap(df)
+```
+Above plot shows us that our dataset has 4% of missing values. If we remove all of them, it is not fair because some variables have no missing values and some have over 500 missing values. If we remove those 500 rows, our original data can loss. Therefore let's replace missing values from each variable mean.
+```{r}
+colnames(df)
+```
+```{r}
+mean_val <- colMeans(df,na.rm = TRUE)
+for(i in colnames(df))
+  df[,i][is.na(df[,i])] <- mean_val[i]
+```
+
+```{r}
+#head(df)
+skim(df)
+```
+```{r}
+missmap(df)
+```
+# Data distribution of each variable.
+```{r}
+df %>%
+  ggplot( aes(x=Life.expectancy)) +
+    geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)+
+    ggtitle("Data distribution of Life Expectancy")
+```
+```{r}
+df %>%
+  ggplot( aes(x=Adult.Mortality)) +
+    geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)+
+    ggtitle("Data distribution of Adult Mortality")
+```
+```{r}
+df %>%
+  ggplot( aes(x=infant.deaths)) +
+    geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)+
+    ggtitle("Data distribution of Infant Deaths")
+```
+```{r}
+df %>%
+  ggplot( aes(x=Alcohol)) +
+    geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)+
+    ggtitle("Data distribution of Alcohol")
+```
+
+```{r}
+df %>%
+  ggplot( aes(x=percentage.expenditure)) +
+    geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)+
+    ggtitle("Data distribution of Percentage Expenditure")
+```
+
+```{r}
+df %>%
+  ggplot( aes(x=Hepatitis.B)) +
+    geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)+
+    ggtitle("Data distribution of Hepatitis B")
+```
+
+```{r}
+df %>%
+  ggplot( aes(x=Measles)) +
+    geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)+
+    ggtitle("Data distribution of Measles")
+```
+
+```{r}
+df %>%
+  ggplot( aes(x=BMI)) +
+    geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)+
+    ggtitle("Data distribution of BMI")
+```
+
+```{r}
+df %>%
+  ggplot( aes(x=under.five.deaths)) +
+    geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)+
+    ggtitle("Data distribution of Under Five Deaths")
+```
+
+```{r}
+df %>%
+  ggplot( aes(x=Polio)) +
+    geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)+
+    ggtitle("Data distribution of Polio")
+```
+
+```{r}
+df %>%
+  ggplot( aes(x=Total.expenditure)) +
+    geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)+
+    ggtitle("Data distribution of Total Expenditure")
+```
+
+```{r}
+df %>%
+  ggplot( aes(x=Diphtheria)) +
+    geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)+
+    ggtitle("Data distribution of Diphtheria")
+```
+
+```{r}
+df %>%
+  ggplot( aes(x=HIV.AIDS)) +
+    geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)+
+    ggtitle("Data distribution of HIV AIDS")
+```
+
+```{r}
+df %>%
+  ggplot( aes(x=GDP)) +
+    geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)+
+    ggtitle("Data distribution of GDP")
+```
+
+```{r}
+df %>%
+  ggplot( aes(x=Population)) +
+    geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)+
+    ggtitle("Data distribution of Population")
+```
+
+```{r}
+df %>%
+  ggplot( aes(x=thinness_1_19_yrs)) +
+    geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)+
+    ggtitle("Data distribution of Thinness under 19 years")
+```
+
+```{r}
+df %>%
+  ggplot( aes(x=thinness.5.9.years)) +
+    geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)+
+    ggtitle("Data distribution of Thinness 5.9 years")
+```
+
+```{r}
+df %>%
+  ggplot( aes(x=Income.composition.of.resources)) +
+    geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)+
+    ggtitle("Data distribution of Income composition of resources")
+```
+
+```{r}
+df %>%
+  ggplot( aes(x=Schooling)) +
+    geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)+
+    ggtitle("Data distribution of Schooling")
+```
+```{r}
+pie(table(df$Status), col=grey.colors(3), main="Developing or Developed")
+```
+# Check the normality using Normal QQ plots
+```{r}
+#create Q-Q plot
+par(mfrow=c(1,2)) 
+
+qqnorm(df$Adult.Mortality, main='Adult Morality')
+qqline(df$Adult.Mortality)
+
+qqnorm(df$infant.deaths, main='Infrant Deaths')
+qqline(df$infant.deaths)
+
+qqnorm(df$Status, main='Status')
+qqline(df$Status)
+
+qqnorm(df$Alcohol, main='Alcohol')
+qqline(df$Alcohol)
+
+qqnorm(df$percentage.expenditure, main='Percentage Expenditure')
+qqline(df$percentage.expenditure)
+
+qqnorm(df$Hepatitis.B, main='Hepatitis B')
+qqline(df$Hepatitis.B)
+
+qqnorm(df$Measles, main='Measles')
+qqline(df$Measles)
+
+qqnorm(df$BMI, main='BMI')
+qqline(df$BMI)
+
+qqnorm(df$under.five.deaths, main='Under Five Deaths')
+qqline(df$under.five.deaths)
+
+qqnorm(df$Polio, main='Polio')
+qqline(df$Polio)
+
+qqnorm(df$Total.expenditure, main='Total Expenditure')
+qqline(df$Total.expenditure)
+
+qqnorm(df$Diphtheria, main='Diptheria')
+qqline(df$Diphtheria)
+
+qqnorm(df$HIV.AIDS, main='HIV AIDS')
+qqline(df$HIV.AIDS)
+
+qqnorm(df$GDP, main='GDP')
+qqline(df$GDP)
+
+qqnorm(df$Population, main='Population')
+qqline(df$Population)
+
+qqnorm(df$thinness_1_19_yrs, main='Thinness 1.19 years')
+qqline(df$thinness_1_19_yrs)
+
+qqnorm(df$thinness.5.9.years, main='Thinness 5.9 years')
+qqline(df$thinness.5.9.years)
+
+qqnorm(df$Income.composition.of.resources, main='Income Composition of Resourcesl')
+qqline(df$Income.composition.of.resources)
+
+qqnorm(df$Schooling, main='Schooling')
+qqline(df$Schooling)
+
+qqnorm(df$Life.expectancy, main='Life Expectancy')
+qqline(df$Life.expectancy)
+
+```
+# Perform log transformation for all the variables
+```{r}
+#log_y <- log10(df$y)
+```
+
+
+
+
+# Check the correlations between the variables
+
+We can conclude that all the variables which are in this dataset are not normally distributed.There we should use 'Spearman rank correlation' values to compare each variable correlations with each other.
+
+```{r}
+scormatrix = rcorr(as.matrix(df), type='spearman')
+scormatrix
+```
+We need only 'Life.expectancy' column because it is the response variable.We should know the relationship between response variable and independent features in the dataset.
+
+```{r}
+library(GGally)
+ggcorr(df, method = c("everything", "pearson"))
+```
+# Scatterplots for each variable with response variable
+```{r}
+library(hrbrthemes)
+```
+```{r}
+ggplot(df, aes(x=Adult.Mortality, y=Life.expectancy)) +
+  geom_point() +
+  geom_smooth(method=lm , color="red", fill="#69b3a2", se=TRUE) +
+  theme_ipsum()
+```
+
+
+
+
+
+
+# Features distribution with response variable
+
+
+
+
+
+## Model Selection for Multiple Bayesian Regression Model
+# Backward Elimination with BIC
+Fit the all the variables and check the BIC value of the model.
+```{r}
+# Compute the total number of observations
+n = nrow(df)
+
+# Full model using all predictors
+df.lm = lm(Life.expectancy  ~ ., data=df)
+
+# Perform BIC elimination from full model
+# k = log(n): penalty for BIC rather than AIC
+df.step = step(df.lm, k=log(n))   
+```
+Best model is;
+Life.expectancy ~ Status + Adult.Mortality + infant.deaths + 
+    Hepatitis.B + BMI + under.five.deaths + Polio + Diphtheria + 
+    HIV.AIDS + GDP + thinness_1_19_yrs + Income.composition.of.resources + 
+    Schooling
+
+Link - https://statswithr.github.io/book/bayesian-model-choice.html#sec:BIC
+
+
+# We can also use the 'BAS' package to find the best BIC model without taking the stepwise backward process.
+```{r}
+library(BAS)
+# Use `bas.lm` to run regression model
+df.BIC = bas.lm(Life.expectancy ~ ., data = df,
+                 prior = "BIC", modelprior = uniform(),include.always = ~ .)
+
+df.BIC
+```
+We can use this information to retrieve the model with the largest log of marginal likelihood, which corresponds to the model with the smallest BIC.
+```{r}
+# Find the index of the model with the largest logmarg
+best = which.max(df.BIC$logmarg)
+
+# Retrieve the index of variables in the best model, with 0 as the index of the intercept
+bestmodel = df.BIC$which[[best]]
+bestmodel
+
+# Create an indicator vector indicating which variables are used in the best model
+# First, create a 0 vector with the same dimension of the number of variables in the full model
+bestgamma = rep(0, df.BIC$n.vars) 
+
+# Change the indicator to 1 where variables are used
+bestgamma[bestmodel + 1] = 1  
+bestgamma
+
+```
+# Posterior Means and Posterior Standard Deviations of the full model
+
+Link - https://statswithr.github.io/book/introduction-to-bayesian-regression.html#posterior-means-and-posterior-standard-deviations
+
+```{r}
+df.coef = coef(df.BIC)
+df.coef
+```
+```{r}
+par(mfrow = c(2, 2), col.lab = "darkgrey", col.axis = "darkgrey", col = "darkgrey")
+plot(df.coef, subset = 2:20, ask = F)
+```
+# Credible Interval Summary
+
+Link - https://statswithr.github.io/book/introduction-to-bayesian-regression.html#posterior-means-and-posterior-standard-deviations
+
+```{r}
+confint(df.coef, parm = 2:20)
+```
+```{r}
+out = confint(df.coef)[, 1:2]  
+
+# Extract the upper and lower bounds of the credible intervals
+names = c("posterior mean", "posterior std", colnames(out))
+out = cbind(df.coef$postmean, df.coef$postsd, out)
+colnames(out) = names
+
+round(out, 2)
+```
+
+
+
+
+
+
+# Coefficient Estimates Under Reference Prior for Best BIC Model
+
+Link - https://statswithr.github.io/book/bayesian-model-choice.html#sec:BIC
+
+```{r}
+# Fit the best BIC model by imposing which variables to be used using the indicators
+df.bestBIC = bas.lm(Life.expectancy ~ ., data = df,
+                     prior = "BIC", n.models = 1,  # We only fit 1 model
+                     bestmodel = bestgamma,  # We use bestgamma to indicate variables 
+                     modelprior = uniform())
+
+# Retrieve coefficients information
+df.coef = coef(df.bestBIC)
+
+# Retrieve bounds of credible intervals
+out = confint(df.coef)[, 1:2]
+
+# Combine results and construct summary table
+coef.BIC = cbind(df.coef$postmean, df.coef$postsd, out)
+names = c("post mean", "post sd", colnames(out))
+colnames(coef.BIC) = names
+coef.BIC
+
+```
+##  Model Checking
+
+# 2) Perform Posterior Predictive Checks
+# Importance of the different predictors
+
+Link - https://statswithr.github.io/book/stochastic-explorations-using-mcmc.html#the-uscrime-data-set-and-data-processing
+
+Best Model; AIC = 8330.51
+
+Life.expectancy ~ Status + Adult.Mortality + infant.deaths + 
+    Alcohol + Hepatitis.B + BMI + under.five.deaths + Polio + 
+    Diphtheria + HIV.AIDS + GDP + thinness_1_19_yrs +Income.composition.of.resources + 
+    Schooling
+
+```{r}
+#fit the best model
+model1 = bas.lm(Life.expectancy ~ Status + Adult.Mortality + infant.deaths + 
+    Hepatitis.B + BMI + under.five.deaths + Polio + Diphtheria + 
+    HIV.AIDS + GDP + thinness_1_19_yrs + Income.composition.of.resources + 
+    Schooling, data = df,
+                 prior = "BIC", modelprior = uniform())
+
+#best fitted model
+plot(model1, which = 4, ask = F, caption = "", sub.caption = "", 
+     col.in = "blue", col.ex = "darkgrey", lwd = 3)
+
+```
+Full model; AIC = 8358.24
+```{r}
+#full model
+plot(df.BIC, which = 4, ask = F, caption = "", sub.caption = "", 
+     col.in = "blue", col.ex = "darkgrey", lwd = 3)
+```
+Model 2; AIC=8331.5
+
+Life.expectancy ~ Status + Adult.Mortality + infant.deaths + 
+    Alcohol + Hepatitis.B + Measles + BMI + under.five.deaths + 
+    Polio + Diphtheria + HIV.AIDS + GDP + thinness_1_19_yrs + 
+    Income.composition.of.resources + Schooling
+
+    
+```{r}
+model2 <- bas.lm(Life.expectancy ~ Status + Adult.Mortality + infant.deaths + 
+    Alcohol + Hepatitis.B + Measles + BMI + under.five.deaths + 
+    Polio + Diphtheria + HIV.AIDS + GDP + thinness_1_19_yrs + 
+    Income.composition.of.resources + Schooling
+, data = df,
+                 prior = "BIC", modelprior = uniform())
+
+plot(model2, which = 4, ask = F, caption = "", sub.caption = "", 
+     col.in = "blue", col.ex = "darkgrey", lwd = 3)
+
+```
+Model 3; AIC = 8335.46
+
+Life.expectancy ~ Status + Adult.Mortality + infant.deaths + 
+    Alcohol + Hepatitis.B + Measles + BMI + under.five.deaths + 
+    Polio + Total.expenditure + Diphtheria + HIV.AIDS + GDP + 
+    thinness_1_19_yrs + Income.composition.of.resources + Schooling
+
+```{r}
+model3 <- bas.lm(Life.expectancy ~ Status + Adult.Mortality + infant.deaths + 
+    Alcohol + Hepatitis.B + Measles + BMI + under.five.deaths + 
+    Polio + Total.expenditure + Diphtheria + HIV.AIDS + GDP + 
+    thinness_1_19_yrs + Income.composition.of.resources + Schooling
+, data = df,
+                 prior = "BIC", modelprior = uniform())
+
+plot(model3, which = 4, ask = F, caption = "", sub.caption = "", 
+     col.in = "blue", col.ex = "darkgrey", lwd = 3)
+
+```
+
+
+
+
+
+
+
+# Model Space Visualization
+To focus on the high posterior probability models, we can look at the image of the model space.
+```{r}
+image(model1, rotate = F)
+```
+# Coefficient Summary under BMA
+
+Link - https://statswithr.github.io/book/bayesian-model-choice.html
+
+```{r}
+model1.coef = coef(model1)
+par(mfrow = c(2, 2), col.lab = "darkgrey", col.axis = "darkgrey", col = "darkgrey")
+plot(model1.coef, subset = 2:14, ask = F)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
